@@ -1,14 +1,27 @@
 class UserController{
     
-    constructor(formId){
-        this.form = document.getElementById(formId)
+    constructor(formId, tableId){
+        this.form = document.getElementById(formId) 
+        this.table = document.getElementById(tableId) 
+        this.eventSubmit()
     }
 
+
+    eventSubmit(){
+
+        this.form.addEventListener("submit", (e)=>{
+            e.preventDefault() 
+            this.addListLine(this.getFormValues())
+        })
+
+    }//Fechando a função que irá adicionar o evento de envio do formulário
+
+    //Nessa função usamos o Spread para f
     getFormValues(){
 
-        let user = {}
+        let user = {};
 
-        this.form.elements.forEach((field, index)=>{
+        [...this.form.elements].forEach((field, index)=>{
             if (field.name === "gender" && field.checked) {
                 user[field.name] = field.value
             }
@@ -26,8 +39,25 @@ class UserController{
             user.password,
             user.photo,
             user.admin
-        )     
+        )
         
-    }//Fechando a função de que pega os valores dos campos do formulário e rotarna um JSON com eles
+        
+    }//Fechando a função que irá pegar os valores dos campos do formulário e rotarna um JSON com eles
+
+    addListLine(dataUser){
+
+        this.table.innerHTML = `
+        <td><img src="dist/img/user1-128x128.jpg" alt="User Image" class="img-circle img-sm"></td>
+        <td>${dataUser.name}</td>
+        <td>${dataUser.email}</td>
+        <td>${dataUser.admin}</td>
+        <td>${dataUser.birth}</td>
+        <td>
+            <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
+            <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+        </td>
+    `
+
+    }
 
 }
