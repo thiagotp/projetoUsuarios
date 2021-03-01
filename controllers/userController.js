@@ -11,12 +11,50 @@ class UserController{
 
         this.form.addEventListener("submit", (e)=>{
             e.preventDefault() 
-            this.addListLine(this.getFormValues())
+            let values = this.getFormValues();
+            this.getPhoto().then((content)=>{
+                
+                values.photo = content;
+                this.addListLine(values);           
+            
+            }, (e)=>{
+                
+                console.error(e);
+            
+            })
         })
 
     }//Fechando a função que irá adicionar o evento de envio do formulário
 
-    //Nessa função usamos o Spread para f
+    getPhoto(){
+
+        return new Promise((resolve, reject)=>{
+
+            let fileReader = new FileReader();
+            let elements = [...this.form.elements].filter(item=>{
+                if (item.name === 'photo'){
+                    return item;
+                }
+            })
+    
+            let file = elements[0].files[0];
+            fileReader.onload = ()=>{
+    
+                resolve(fileReader.result);
+    
+            }
+    
+            fileReader.onerror = (e)=>{
+                reject(e);
+            }
+
+            fileReader.readAsDataURL(file);
+
+        })
+
+    }//Fechando função que interpreta a photo do formulário
+
+    //Nessa função usamos o Spread para que uma coleção seja entendida como um array
     getFormValues(){
 
         let user = {};
@@ -47,7 +85,7 @@ class UserController{
     addListLine(dataUser){
 
         this.table.innerHTML = `
-        <td><img src="dist/img/user1-128x128.jpg" alt="User Image" class="img-circle img-sm"></td>
+        <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
         <td>${dataUser.name}</td>
         <td>${dataUser.email}</td>
         <td>${dataUser.admin}</td>
