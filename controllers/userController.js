@@ -8,15 +8,20 @@ class UserController{
 
 
     eventSubmit(){
+        
+        let btnSubmit = this.form.querySelector('[type=submit]')
 
         this.form.addEventListener("submit", (e)=>{
             e.preventDefault() 
+            btnSubmit.disabled = true;
             let values = this.getFormValues();
             this.getPhoto().then((content)=>{
                 
                 values.photo = content;
                 this.addListLine(values);           
-            
+                this.form.reset();
+                btnSubmit.disabled = false;
+
             }, (e)=>{
                 
                 console.error(e);
@@ -63,6 +68,8 @@ class UserController{
         let user = {};
 
         [...this.form.elements].forEach((field, index)=>{
+            if([].indexOf())
+
             if (field.name === "gender" && field.checked) {
                 user[field.name] = field.value
             } else if( field.name === "admin"){
@@ -80,7 +87,8 @@ class UserController{
             user.email,
             user.password,
             user.photo,
-            user.admin
+            user.admin,
+            user.register
         )
         
         
@@ -95,7 +103,7 @@ class UserController{
         <td>${dataUser.name}</td>
         <td>${dataUser.email}</td>
         <td>${(dataUser.admin) ? 'Sim' : "Não"}</td>
-        <td>${dataUser.birth}</td>
+        <td>${Utils.dateFormat(dataUser.register)}</td>
         <td>
             <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
             <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
