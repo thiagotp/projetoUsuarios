@@ -1,58 +1,66 @@
-class UserController{
-    
-    constructor(formId, tableId){
-        this.form = document.getElementById(formId) 
-        this.table = document.getElementById(tableId) 
+class UserController {
+
+    constructor(formId, tableId) {
+        this.form = document.getElementById(formId)
+        this.table = document.getElementById(tableId)
         this.eventSubmit()
     }
 
 
-    eventSubmit(){
-        
+    eventSubmit() {
+
         let btnSubmit = this.form.querySelector('[type=submit]')
 
-        this.form.addEventListener("submit", (e)=>{
-            e.preventDefault() 
-            btnSubmit.disabled = true;
+        this.form.addEventListener("submit", (e) => {
+            e.preventDefault()
             let values = this.getFormValues();
-            this.getPhoto().then((content)=>{
-                
+            if (!values) {
+
+                btnSubmit.disabled = false;
+
+            } else {
+
+                btnSubmit.disabled = true;
+
+            }
+            this.getPhoto().then((content) => {
+
                 values.photo = content;
-                this.addListLine(values);           
+                this.addListLine(values);
                 this.form.reset();
                 btnSubmit.disabled = false;
 
-            }, (e)=>{
-                
+            }, (e) => {
+
                 console.error(e);
-            
+
             })
         })
 
     }//Fechando a função que irá adicionar o evento de envio do formulário
 
-    getPhoto(){
+    getPhoto() {
 
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
             let fileReader = new FileReader();
-            let elements = [...this.form.elements].filter(item=>{
-                if (item.name === 'photo'){
+            let elements = [...this.form.elements].filter(item => {
+                if (item.name === 'photo') {
                     return item;
                 }
             })
-    
+
             let file = elements[0].files[0];
-            fileReader.onload = ()=>{
-    
+            fileReader.onload = () => {
+
                 resolve(fileReader.result)
-    
+
             }
-    
-            fileReader.onerror = (e)=>{
+
+            fileReader.onerror = (e) => {
                 reject(e);
             }
-            if(file){
+            if (file) {
                 fileReader.readAsDataURL(file)
             } else {
                 resolve('dist/img/unisex.jpg')
@@ -63,38 +71,51 @@ class UserController{
     }//Fechando função que interpreta a photo do formulário
 
     //Nessa função usamos o Spread para que uma coleção seja entendida como um array
-    getFormValues(){
+    getFormValues() {
 
         let user = {};
+        let isValid = true;
 
-        [...this.form.elements].forEach((field, index)=>{
-            if([].indexOf())
+        [...this.form.elements].forEach((field, index) => {
+            if (['name', 'email', 'password', 'birth'].indexOf(field.name) > -1 && !field.value) {
+
+                field.parentElement.classList.add('has-error')
+                isValid = false
+
+            } else {
+
+                field.parentElement.classList.remove('has-error')
+
+            }
 
             if (field.name === "gender" && field.checked) {
                 user[field.name] = field.value
-            } else if( field.name === "admin"){
+            } else if (field.name === "admin") {
                 user[field.name] = field.checked
-            }else {
+            } else {
                 user[field.name] = field.value
             }
         })
 
-        return new User(
-            user.name,
-            user.gender,
-            user.birth,
-            user.country,
-            user.email,
-            user.password,
-            user.photo,
-            user.admin,
-            user.register
-        )
-        
-        
+        if (isValid) {
+            return new User(
+                user.name,
+                user.gender,
+                user.birth,
+                user.country,
+                user.email,
+                user.password,
+                user.photo,
+                user.admin,
+                user.register
+            )
+        } else {
+            return false
+        }
+
     }//Fechando a função que irá pegar os valores dos campos do formulário e rotarna um JSON com eles
 
-    addListLine(dataUser){
+    addListLine(dataUser) {
 
         let tr = document.createElement('tr')
 
