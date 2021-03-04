@@ -4,8 +4,34 @@ class UserController {
         this.form = document.getElementById(formId)
         this.table = document.getElementById(tableId)
         this.eventSubmit()
+        this.eventEdit()
     }
 
+
+    eventEdit(){
+
+        let btnCancel = document.querySelector('#box-user-update .btn-cancel')
+
+        btnCancel.addEventListener('click', (event)=>{
+            document.querySelector('#form-user-update').reset()
+            this.ShowFormCreate()
+        })
+
+    }
+
+    ShowFormUpdate(){
+
+        document.querySelector('#box-user-create').style.display = 'none'
+        document.querySelector('#box-user-update').style.display = 'block'
+        
+    }
+    
+    ShowFormCreate(){
+        
+        document.querySelector('#box-user-create').style.display = 'block'
+        document.querySelector('#box-user-update').style.display = 'none'
+        
+    }
 
     eventSubmit() {
 
@@ -77,7 +103,7 @@ class UserController {
         let isValid = true;
 
         [...this.form.elements].forEach((field, index) => {
-            if (['name', 'email', 'password', 'birth'].indexOf(field.name) > -1 && !field.value) {
+            if (['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value) {
 
                 field.parentElement.classList.add('has-error')
                 isValid = false
@@ -128,10 +154,23 @@ class UserController {
         <td>${(dataUser.admin) ? 'Sim' : "Não"}</td>
         <td>${Utils.dateFormat(dataUser.register)}</td>
         <td>
-            <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
-            <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+            <button type="button" class="btn btn-primary btn-xs btn-edit btn-flat">Editar</button>
+            <button type="button" class="btn btn-danger btn-xs btn-delete btn-flat">Excluir</button>
         </td>
     `
+
+        tr.querySelector('.btn-edit').addEventListener('click', (event)=>{
+
+            let line = JSON.parse(tr.dataset.user)
+            this.ShowFormUpdate()
+            
+        })
+        
+        tr.querySelector('.btn-delete').addEventListener('click', (event)=>{
+
+            
+
+        })
 
         this.table.appendChild(tr)
 
@@ -155,8 +194,7 @@ class UserController {
             }
             
         })
-        console.log(users)
-        console.log(admins)
+
         userCount.innerHTML = users
         adminCount.innerHTML = admins
 
