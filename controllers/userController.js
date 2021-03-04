@@ -118,6 +118,8 @@ class UserController {
     addListLine(dataUser) {
 
         let tr = document.createElement('tr')
+        //transformando um objeto em string
+        tr.dataset.user = JSON.stringify(dataUser)
 
         tr.innerHTML = `
         <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
@@ -132,6 +134,31 @@ class UserController {
     `
 
         this.table.appendChild(tr)
+
+        this.updateCountUsers()
+
+    }
+
+    updateCountUsers(){
+
+        let users = 0;
+        let admins = 0;
+        let userCount = document.querySelector('#number-users');
+        let adminCount = document.querySelector('#number-admin');
+        [...this.table.children].forEach(tr=>{
+            //transformando uma string em objeto JSON
+            let user = JSON.parse(tr.dataset.user)
+            if(user._admin){
+                admins ++
+            } else {
+                users ++
+            }
+            
+        })
+        console.log(users)
+        console.log(admins)
+        userCount.innerHTML = users
+        adminCount.innerHTML = admins
 
     }
 
