@@ -8,29 +8,29 @@ class UserController {
     }
 
 
-    eventEdit(){
+    eventEdit() {
 
         let btnCancel = document.querySelector('#box-user-update .btn-cancel')
 
-        btnCancel.addEventListener('click', (event)=>{
+        btnCancel.addEventListener('click', (event) => {
             document.querySelector('#form-user-update').reset()
             this.ShowFormCreate()
         })
 
     }
 
-    ShowFormUpdate(){
+    ShowFormUpdate() {
 
         document.querySelector('#box-user-create').style.display = 'none'
         document.querySelector('#box-user-update').style.display = 'block'
-        
+
     }
-    
-    ShowFormCreate(){
-        
+
+    ShowFormCreate() {
+
         document.querySelector('#box-user-create').style.display = 'block'
         document.querySelector('#box-user-update').style.display = 'none'
-        
+
     }
 
     eventSubmit() {
@@ -114,12 +114,18 @@ class UserController {
 
             }
 
-            if (field.name === "gender" && field.checked) {
-                user[field.name] = field.value
+            if (field.name === "gender") {
+
+                if (field.checked) user[field.name] = field.value
+
             } else if (field.name === "admin") {
+
                 user[field.name] = field.checked
+
             } else {
+
                 user[field.name] = field.value
+
             }
         })
 
@@ -142,7 +148,6 @@ class UserController {
     }//Fechando a função que irá pegar os valores dos campos do formulário e rotarna um JSON com eles
 
     addListLine(dataUser) {
-
         let tr = document.createElement('tr')
         //transformando um objeto em string
         tr.dataset.user = JSON.stringify(dataUser)
@@ -159,16 +164,46 @@ class UserController {
         </td>
     `
 
-        tr.querySelector('.btn-edit').addEventListener('click', (event)=>{
+        tr.querySelector('.btn-edit').addEventListener('click', (event) => {
 
-            let line = JSON.parse(tr.dataset.user)
+            let lineJson = JSON.parse(tr.dataset.user)
+            let formUpdate = document.querySelector('#form-user-update')
+
+            for (let name in lineJson) {
+
+                let field = formUpdate.querySelector("[name=" + name.replace("_", "") + "]");
+
+                if (field) {
+                    switch (field.type) {
+
+                        case 'file':
+                            continue;
+                            break;
+
+                        case 'radio':
+                            field = formUpdate.querySelector("[name=" + name.replace("_", "") + "][value=" + lineJson[name] + "]")
+                            field.checked = true;
+                            break;
+
+                        case 'checkbox':
+                            field.checked = lineJson[name]
+                            break;
+
+                        default:
+                            field.value = lineJson[name]
+
+                    }
+
+                }
+
+            }
             this.ShowFormUpdate()
-            
-        })
-        
-        tr.querySelector('.btn-delete').addEventListener('click', (event)=>{
 
-            
+        })
+
+        tr.querySelector('.btn-delete').addEventListener('click', (event) => {
+
+
 
         })
 
@@ -178,21 +213,21 @@ class UserController {
 
     }
 
-    updateCountUsers(){
+    updateCountUsers() {
 
         let users = 0;
         let admins = 0;
         let userCount = document.querySelector('#number-users');
         let adminCount = document.querySelector('#number-admin');
-        [...this.table.children].forEach(tr=>{
+        [...this.table.children].forEach(tr => {
             //transformando uma string em objeto JSON
             let user = JSON.parse(tr.dataset.user)
-            if(user._admin){
-                admins ++
+            if (user._admin) {
+                admins++
             } else {
-                users ++
+                users++
             }
-            
+
         })
 
         userCount.innerHTML = users
