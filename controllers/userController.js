@@ -6,6 +6,7 @@ class UserController {
         this.table = document.getElementById(tableId)
         this.eventSubmit()
         this.eventEdit()
+        this.selectAll()
     }
 
 
@@ -41,22 +42,12 @@ class UserController {
 
                 }
 
-                tr.dataset.user = JSON.stringify(updatedUser)
+                let user = new User()
+                
+                user.loadFromJSON(updatedUser)
+                user.saveUser();
+                tr = this.trHTML(user, tr)
 
-                console.log(updatedUser)
-                tr.innerHTML = `
-                    <td><img src="${updatedUser._photo}" alt="User Image" class="img-circle img-sm"></td>
-                    <td>${updatedUser._name}</td>
-                    <td>${updatedUser._email}</td>
-                    <td>${(updatedUser._admin) ? 'Sim' : "Não"}</td>
-                    <td>${Utils.dateFormat(updatedUser._register)}</td>
-                    <td>
-                    <button type="button" class="btn btn-primary btn-xs btn-edit btn-flat">Editar</button>
-                    <button type="button" class="btn btn-danger btn-xs btn-delete btn-flat">Excluir</button>
-                    </td>
-                `
-
-                this.addEventsTr(tr)
                 this.updateCountUsers()
                 this.formUpdate.reset();
                 btnSubmit.disabled = false;
@@ -71,21 +62,21 @@ class UserController {
 
         })
 
-    }
+    }//Função que irá editar e substituir a linha na tabela com dados novos do usuário
 
     ShowFormUpdate() {
 
         document.querySelector('#box-user-create').style.display = 'none'
         document.querySelector('#box-user-update').style.display = 'block'
 
-    }
+    }//trocando exibição de formulários
 
     ShowFormCreate() {
 
         document.querySelector('#box-user-create').style.display = 'block'
         document.querySelector('#box-user-update').style.display = 'none'
 
-    }
+    }//trocando exibição de formulários
 
     eventSubmit() {
 
@@ -106,6 +97,7 @@ class UserController {
             this.getPhoto(this.form).then((content) => {
 
                 values.photo = content;
+                values.saveUser()
                 this.addListLine(values);
                 this.form.reset();
                 btnSubmit.disabled = false;
@@ -201,8 +193,35 @@ class UserController {
 
     }//Fechando a função que irá pegar os valores dos campos do formulário e rotarna um JSON com eles
 
+    selectAll() {
+
+        let users = User.getUsersStorage();
+
+        users.forEach(dataUser =>{
+
+            let user = new User ();
+            user.loadFromJSON(dataUser)
+            console.log(user)
+            this.addListLine(user)
+
+        })
+
+    }
+    
     addListLine(dataUser) {
-        let tr = document.createElement('tr')
+        
+        let tr = this.trHTML(dataUser)
+
+        this.table.appendChild(tr)
+
+        this.updateCountUsers()
+
+    }//Fechando função que irá adicionar uma linha na tabela com os dados do usuário
+
+    trHTML(dataUser, tr = null){
+       
+        if(tr === null )tr = document.createElement('tr')
+
         //transformando um objeto em string
         tr.dataset.user = JSON.stringify(dataUser)
 
@@ -218,16 +237,14 @@ class UserController {
         </td>
     `
 
-        this.addEventsTr(tr);
+    this.addEventsTr(tr);
 
-        this.table.appendChild(tr)
+    return tr;
 
-        this.updateCountUsers()
-
-    }
+    }// Responsável por gerar a tr da tabela
 
     addEventsTr(tr) {
-        
+
         tr.querySelector('.btn-edit').addEventListener('click', (event) => {
 
             let lineJson = JSON.parse(tr.dataset.user)
@@ -269,11 +286,14 @@ class UserController {
 
         })
 
-        
+
         tr.querySelector('.btn-delete').addEventListener('click', (event) => {
 
-            if(confirm("Deseja realmente excluir? ")){
+            if (confirm("Deseja realmente excluir? ")) {
 
+                let user = new User()
+                user.loadFromJSON(JSON.parse(tr.dataset.user))
+                user.remove()
                 tr.remove();
                 this.updateCountUsers();
 
@@ -281,7 +301,7 @@ class UserController {
 
         })
 
-    }
+    }//Adicionando eventos nos botões da tabela de usuários
 
     updateCountUsers() {
 
@@ -303,6 +323,6 @@ class UserController {
         userCount.innerHTML = users
         adminCount.innerHTML = admins
 
-    }
+    }//Contador de usuários
 
 }
